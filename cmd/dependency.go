@@ -1,11 +1,9 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/container-labs/ada/internal/ada"
-	"github.com/container-labs/ada/internal/common"
 	"github.com/container-labs/ada/internal/golang"
 	"github.com/container-labs/ada/internal/nodejs"
 	"github.com/container-labs/ada/internal/python"
@@ -13,30 +11,32 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var logger = common.Logger()
+var dependencyCmd = &cobra.Command{
+	Use:   "dep",
+	Short: "manage app dependencies",
+	Run: func(cmd *cobra.Command, args []string) {
 
-var installCmd = &cobra.Command{
-	Use:   "install",
-	Short: "install the app in the cwd on the local machine",
+	},
+}
+
+var dependencyAddCmd = &cobra.Command{
+	Use:   "add",
+	Short: "add a dependency to the app",
 	Run: func(cmd *cobra.Command, args []string) {
 		adaFile := ada.Load()
 
-		if adaFile.Install.Disabled {
-			logger.Info("Skipping install")
-			return
-		}
-		logger.Info(fmt.Sprintf("%v", adaFile))
+		dep := args[0]
 
 		var err error
 		switch adaFile.Type {
 		case "python":
-			err = python.Install()
+			err = python.AddDependency(dep)
 		case "terraform":
-			err = terraform.Install()
+			err = terraform.AddDependency(dep)
 		case "nodejs":
-			err = nodejs.Install()
+			err = nodejs.AddDependency(dep)
 		case "go":
-			err = golang.Install()
+			err = golang.AddDependency(dep)
 		default:
 			logger.Info("not implemented")
 		}
@@ -49,5 +49,6 @@ var installCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(installCmd)
+	rootCmd.AddCommand(dependencyCmd)
+	dependencyCmd.AddCommand(dependencyAddCmd)
 }

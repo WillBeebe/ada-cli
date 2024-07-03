@@ -1,9 +1,9 @@
 package ada
 
 type AdaFile struct {
-	Name        string `yaml:"name"`
-	Type        string `yaml:"type"`
-	Team        string `yaml:"team"`
+	Name string `yaml:"name"`
+	Type string `yaml:"type"`
+
 	Metadata    AdaMetadata
 	Lint        AdaLint        `yaml:"lint"`
 	Install     AdaInstall     `yaml:"install"`
@@ -13,12 +13,12 @@ type AdaFile struct {
 }
 
 type AdaMetadata struct {
-	GarImageName             string
-	ArtifactoryImageName     string
-	ProjectId                string
-	ProjectNumber            string
-	KubernetesDevClusterName string
-	GCP                      GCPMetadata
+	GarImageName         string
+	ArtifactoryImageName string
+	ProjectId            string
+	ProjectNumber        string
+	GCP                  GCPMetadata
+	Team                 string `yaml:"team"`
 }
 
 type AdaLint struct {
@@ -35,7 +35,6 @@ type AdaInstallDeps struct {
 
 type AdaTests struct {
 	Unit AdaUnitTests `yaml:"unit"`
-	E2E  AdaE2ETests  `yaml:"e2e"`
 }
 
 type AdaUnitTests struct {
@@ -43,14 +42,6 @@ type AdaUnitTests struct {
 	Disabled bool   `yaml:"disabled"`
 }
 
-type AdaE2ETests struct {
-	Command  string `yaml:"command"`
-	Disabled bool   `yaml:"disabled"`
-}
-
 type GCPMetadata struct {
-	DevProjectID string
-	QAProjectID  string
-	StgProjectID string
-	PrdProjectID string
+	ProjectID string
 }

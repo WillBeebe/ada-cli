@@ -10,8 +10,12 @@ import (
 
 var logger = common.Logger()
 
+const (
+	ADA_FILE = "ada.yaml"
+)
+
 func CheckExists() error {
-	yamlFile := "paddle.yaml"
+	yamlFile := ADA_FILE
 
 	_, err := ioutil.ReadFile(yamlFile)
 	if err != nil {
@@ -22,7 +26,7 @@ func CheckExists() error {
 }
 
 func Load() AdaFile {
-	yamlFile := "paddle.yaml"
+	yamlFile := ADA_FILE
 
 	data, err := ioutil.ReadFile(yamlFile)
 	if err != nil {
