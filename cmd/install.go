@@ -4,12 +4,9 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/container-labs/ada/internal"
 	"github.com/container-labs/ada/internal/ada"
 	"github.com/container-labs/ada/internal/common"
-	"github.com/container-labs/ada/internal/golang"
-	"github.com/container-labs/ada/internal/nodejs"
-	"github.com/container-labs/ada/internal/python"
-	"github.com/container-labs/ada/internal/terraform"
 	"github.com/spf13/cobra"
 )
 
@@ -27,20 +24,13 @@ var installCmd = &cobra.Command{
 		}
 		logger.Info(fmt.Sprintf("%v", adaFile))
 
-		var err error
-		switch adaFile.Type {
-		case "python":
-			err = python.Install()
-		case "terraform":
-			err = terraform.Install()
-		case "nodejs":
-			err = nodejs.Install()
-		case "go":
-			err = golang.Install()
-		default:
-			logger.Info("not implemented")
+		strategy, err := internal.LanguageFactory(adaFile)
+		if err != nil {
+			logger.Error(err.Error())
+			os.Exit(1)
 		}
 
+		err = strategy.Install()
 		if err != nil {
 			logger.Error(err.Error())
 			os.Exit(1)

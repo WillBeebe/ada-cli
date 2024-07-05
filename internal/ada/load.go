@@ -25,7 +25,7 @@ func CheckExists() error {
 	return nil
 }
 
-func Load() AdaFile {
+func Load() *AdaFile {
 	yamlFile := ADA_FILE
 
 	data, err := ioutil.ReadFile(yamlFile)
@@ -52,5 +52,5 @@ func Load() AdaFile {
 
 	logger.Debug(fmt.Sprintf("%+v\n", config))
 
-	return config
+	return &config
 }
