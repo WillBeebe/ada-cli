@@ -6,7 +6,7 @@ import (
 
 func Install() error {
 	// install project dependencies
-	_, err := cmd.Execute(&cmd.CommandOptions{
+	_, err := cmd.StyledExecute(&cmd.CommandOptions{
 		Command: "go get",
 	})
 

@@ -27,7 +27,7 @@ func Run(AdaFile *ada.AdaFile, runBash bool) error {
 	}
 	command := fmt.Sprintf("docker run -it -p %d:%d --env-file=.env -v$${HOME}/.config/gcloud:/root/.config/gcloud %s:%s %s",
 		AdaFile.Port, AdaFile.Port, AdaFile.Name, versionTag, bashCmd)
-	_, err := cmd.Execute(&cmd.CommandOptions{
+	_, err := cmd.StyledExecute(&cmd.CommandOptions{
 		Command: command,
 	})
 	return err

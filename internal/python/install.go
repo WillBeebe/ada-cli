@@ -6,7 +6,7 @@ import (
 
 func Install() error {
 	// install project dependencies
-	_, err := cmd.Execute(&cmd.CommandOptions{
+	_, err := cmd.StyledExecute(&cmd.CommandOptions{
 		Command: "poetry install --all-extras",
 	})
 
@@ -15,7 +15,7 @@ func Install() error {
 
 func InstallDeps() error {
 	// install external dependencies
-	_, err := cmd.Execute(&cmd.CommandOptions{
+	_, err := cmd.StyledExecute(&cmd.CommandOptions{
 		Command: "pip3 install poetry pre-commit",
 	})
 
@@ -24,7 +24,7 @@ func InstallDeps() error {
 	}
 
 	// install pre-commit hooks
-	_, err = cmd.Execute(&cmd.CommandOptions{
+	_, err = cmd.StyledExecute(&cmd.CommandOptions{
 		Command: "poetry run pre-commit install",
 	})
 

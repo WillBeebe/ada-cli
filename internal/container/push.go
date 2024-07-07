@@ -16,7 +16,7 @@ func Push(AdaFile *ada.AdaFile) error {
 	versionTag := ada.GetGitVersionTag()
 	gitSHA := ada.GetGitShortSHA()
 	command := fmt.Sprintf("docker tag %s:%s %s:%s", AdaFile.Name, gitSHA, AdaFile.Metadata.GarImageName, versionTag)
-	output, err := cmd.Execute(&cmd.CommandOptions{
+	output, err := cmd.StyledExecute(&cmd.CommandOptions{
 		Command: command,
 	})
 	if err != nil {
@@ -25,7 +25,7 @@ func Push(AdaFile *ada.AdaFile) error {
 	}
 	logger.Info(string(output))
 	command = fmt.Sprintf("docker tag %s:%s %s:%s", AdaFile.Name, gitSHA, AdaFile.Metadata.GarImageName, gitSHA)
-	output, err = cmd.Execute(&cmd.CommandOptions{
+	output, err = cmd.StyledExecute(&cmd.CommandOptions{
 		Command: command,
 	})
 	if err != nil {
@@ -34,7 +34,7 @@ func Push(AdaFile *ada.AdaFile) error {
 	}
 	logger.Info(string(output))
 	command = fmt.Sprintf("docker tag %s:%s %s:local-latest", AdaFile.Name, gitSHA, AdaFile.Metadata.GarImageName)
-	output, err = cmd.Execute(&cmd.CommandOptions{
+	output, err = cmd.StyledExecute(&cmd.CommandOptions{
 		Command: command,
 	})
 	if err != nil {
@@ -43,7 +43,7 @@ func Push(AdaFile *ada.AdaFile) error {
 	}
 	logger.Info(string(output))
 	command = fmt.Sprintf("docker push %s:%s", AdaFile.Metadata.GarImageName, versionTag)
-	_, err = cmd.Execute(&cmd.CommandOptions{
+	_, err = cmd.StyledExecute(&cmd.CommandOptions{
 		Command: command,
 	})
 	if err != nil {
@@ -52,7 +52,7 @@ func Push(AdaFile *ada.AdaFile) error {
 	}
 	logger.Info(string(output))
 	command = fmt.Sprintf("docker push %s:%s", AdaFile.Metadata.GarImageName, gitSHA)
-	_, err = cmd.Execute(&cmd.CommandOptions{
+	_, err = cmd.StyledExecute(&cmd.CommandOptions{
 		Command: command,
 	})
 	if err != nil {
@@ -61,7 +61,7 @@ func Push(AdaFile *ada.AdaFile) error {
 	}
 	logger.Info(string(output))
 	command = fmt.Sprintf("docker push %s:local-latest", AdaFile.Metadata.GarImageName)
-	_, err = cmd.Execute(&cmd.CommandOptions{
+	_, err = cmd.StyledExecute(&cmd.CommandOptions{
 		Command: command,
 	})
 	if err != nil {
@@ -86,56 +86,56 @@ func PushArtifactory(AdaFile *ada.AdaFile) error {
 	versionTag := ada.GetGitVersionTag()
 	gitSHA := ada.GetGitShortSHA()
 	command := fmt.Sprintf("jf docker tag %s:%s %s:%s", AdaFile.Name, gitSHA, AdaFile.Metadata.ArtifactoryImageName, versionTag)
-	_, err := cmd.Execute(&cmd.CommandOptions{
+	_, err := cmd.StyledExecute(&cmd.CommandOptions{
 		Command: command,
 	})
 	if err != nil {
 		return err
 	}
 	command = fmt.Sprintf("jf docker tag %s:%s %s:%s", AdaFile.Name, gitSHA, AdaFile.Metadata.ArtifactoryImageName, gitSHA)
-	_, err = cmd.Execute(&cmd.CommandOptions{
+	_, err = cmd.StyledExecute(&cmd.CommandOptions{
 		Command: command,
 	})
 	if err != nil {
 		return err
 	}
 	command = fmt.Sprintf("jf docker tag %s:%s %s:local-latest", AdaFile.Name, gitSHA, AdaFile.Metadata.ArtifactoryImageName)
-	_, err = cmd.Execute(&cmd.CommandOptions{
+	_, err = cmd.StyledExecute(&cmd.CommandOptions{
 		Command: command,
 	})
 	if err != nil {
 		return err
 	}
 	command = fmt.Sprintf("jf rt dp %s:%s docker-canoo-local-dev --build-name=%s-docker-dev --build-number=%s", AdaFile.Metadata.ArtifactoryImageName, gitSHA, AdaFile.Name, gitSHA)
-	_, err = cmd.Execute(&cmd.CommandOptions{
+	_, err = cmd.StyledExecute(&cmd.CommandOptions{
 		Command: command,
 	})
 	if err != nil {
 		return err
 	}
 	command = fmt.Sprintf("jf rt dp %s:%s docker-canoo-local-dev --build-name=%s-docker-dev --build-number=%s", AdaFile.Metadata.ArtifactoryImageName, versionTag, AdaFile.Name, gitSHA)
-	_, err = cmd.Execute(&cmd.CommandOptions{
+	_, err = cmd.StyledExecute(&cmd.CommandOptions{
 		Command: command,
 	})
 	if err != nil {
 		return err
 	}
 	command = fmt.Sprintf("jf rt dp %s:local-latest docker-canoo-local-dev --build-name=%s-docker-dev --build-number=%s", AdaFile.Metadata.ArtifactoryImageName, AdaFile.Name, gitSHA)
-	_, err = cmd.Execute(&cmd.CommandOptions{
+	_, err = cmd.StyledExecute(&cmd.CommandOptions{
 		Command: command,
 	})
 	if err != nil {
 		return err
 	}
 	command = fmt.Sprintf("jf rt bag %s-docker-dev %s", AdaFile.Name, gitSHA)
-	_, err = cmd.Execute(&cmd.CommandOptions{
+	_, err = cmd.StyledExecute(&cmd.CommandOptions{
 		Command: command,
 	})
 	if err != nil {
 		return err
 	}
 	command = fmt.Sprintf("jf rt bp %s-docker-dev %s", AdaFile.Name, gitSHA)
-	_, err = cmd.Execute(&cmd.CommandOptions{
+	_, err = cmd.StyledExecute(&cmd.CommandOptions{
 		Command: command,
 	})
 	if err != nil {

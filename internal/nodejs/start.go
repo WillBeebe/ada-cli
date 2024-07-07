@@ -3,7 +3,7 @@ package nodejs
 import "github.com/container-labs/ada/internal/cmd"
 
 func Start() error {
-	_, err := cmd.Execute(&cmd.CommandOptions{
+	_, err := cmd.StyledExecute(&cmd.CommandOptions{
 		Command: "npm start",
 	})
 

@@ -5,7 +5,7 @@ import (
 )
 
 func Install() error {
-	_, err := cmd.Execute(&cmd.CommandOptions{
+	_, err := cmd.StyledExecute(&cmd.CommandOptions{
 		Command: "terraform init",
 	})
 

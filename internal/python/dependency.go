@@ -7,7 +7,7 @@ import (
 )
 
 func AddDependency(dep string) error {
-	_, err := cmd.Execute(&cmd.CommandOptions{
+	_, err := cmd.StyledExecute(&cmd.CommandOptions{
 		Command: fmt.Sprintf("poetry add %s", dep),
 	})
 

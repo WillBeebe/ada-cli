@@ -21,7 +21,7 @@ func Build(adaFile *ada.AdaFile) error {
 	// }
 	versionTag := ada.GetGitShortSHA()
 	command := fmt.Sprintf("docker build -t %s:%s .", adaFile.Name, versionTag)
-	_, err := cmd.Execute(&cmd.CommandOptions{
+	_, err := cmd.StyledExecute(&cmd.CommandOptions{
 		Command: command,
 	})
 	return err
