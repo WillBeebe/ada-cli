@@ -1,0 +1,636 @@
+---
+openapi: 3.1.0
+info:
+  title: FastAPI
+  version: 0.1.0
+paths:
+  "/protected-route":
+    get:
+      summary: Protected Route
+      operationId: protected_route_protected_route_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+      security:
+      - HTTPBearer: []
+  "/":
+    get:
+      summary: Read Root
+      operationId: read_root__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  "/agents/":
+    get:
+      tags:
+      - agents
+      summary: List
+      operationId: list_agents__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  "/agents/{id}":
+    get:
+      tags:
+      - agents
+      summary: Get
+      operationId: get_agents__id__get
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/jobs/":
+    get:
+      tags:
+      - jobs
+      summary: List
+      operationId: list_jobs__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  "/jobs/{job_id}":
+    get:
+      tags:
+      - jobs
+      summary: Read
+      operationId: read_jobs__job_id__get
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          title: Job Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/jobs/{job_id}/projects":
+    get:
+      tags:
+      - jobs
+      summary: Read Projects
+      operationId: read_projects_jobs__job_id__projects_get
+      parameters:
+      - name: job_id
+        in: path
+        required: true
+        schema:
+          title: Job Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/projects/":
+    get:
+      tags:
+      - projects
+      summary: List
+      operationId: list_projects__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+    post:
+      tags:
+      - projects
+      summary: Create
+      operationId: create_projects__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/CreateProject"
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/projects/{project_id}":
+    get:
+      tags:
+      - projects
+      summary: Read
+      operationId: read_projects__project_id__get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+    put:
+      tags:
+      - projects
+      summary: Update
+      operationId: update_projects__project_id__put
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/UpdateProject"
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+    delete:
+      tags:
+      - projects
+      summary: Delete
+      operationId: delete_projects__project_id__delete
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/projects/{project_id}/history":
+    get:
+      tags:
+      - projects
+      summary: Read History
+      operationId: read_history_projects__project_id__history_get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/projects/{project_id}/files":
+    post:
+      tags:
+      - projects
+      summary: Create Project File
+      operationId: create_project_file_projects__project_id__files_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/AddProjectFile"
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/projects/{project_id}/files/{file_id}":
+    put:
+      tags:
+      - projects
+      summary: Update Project File
+      operationId: update_project_file_projects__project_id__files__file_id__put
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Project Id
+      - name: file_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: File Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/UpdateProjectFile"
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/projects/{project_id}/code":
+    post:
+      tags:
+      - projects
+      summary: Run Edit Command
+      operationId: run_edit_command_projects__project_id__code_post
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Project Id
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/EditBody"
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/prompt/":
+    post:
+      tags:
+      - prompts
+      summary: Prompt
+      operationId: prompt_prompt__post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/PostQuery"
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/settings/":
+    get:
+      tags:
+      - settings
+      summary: List
+      operationId: list_settings__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+    put:
+      tags:
+      - settings
+      summary: Update
+      operationId: update_settings__put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              "$ref": "#/components/schemas/UpdateSettings"
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/tasks/":
+    get:
+      tags:
+      - tasks
+      summary: List
+      operationId: list_tasks__get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  "/tasks/{project_id}":
+    get:
+      tags:
+      - tasks
+      summary: Read Project Tasks Ep
+      operationId: read_project_tasks_ep_tasks__project_id__get
+      parameters:
+      - name: project_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Project Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                "$ref": "#/components/schemas/HTTPValidationError"
+  "/usage/total":
+    get:
+      tags:
+      - usage
+      summary: List
+      operationId: list_usage_total_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    AddProjectFile:
+      properties:
+        name:
+          type: string
+          title: Name
+        content:
+          type: string
+          title: Content
+        path:
+          type: string
+          title: Path
+      type: object
+      required:
+      - name
+      - content
+      - path
+      title: AddProjectFile
+    CreateProject:
+      properties:
+        name:
+          type: string
+          title: Name
+        path:
+          type: string
+          title: Path
+        provider:
+          type: string
+          title: Provider
+        provider_model:
+          type: string
+          title: Provider Model
+      type: object
+      required:
+      - name
+      - path
+      - provider
+      - provider_model
+      title: CreateProject
+    EditBody:
+      properties:
+        context:
+          type: string
+          title: Context
+        content:
+          type: string
+          title: Content
+      type: object
+      required:
+      - context
+      - content
+      title: EditBody
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            "$ref": "#/components/schemas/ValidationError"
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    PostQuery:
+      properties:
+        prompt:
+          type: string
+          title: Prompt
+        projectId:
+          type: string
+          title: Projectid
+      type: object
+      required:
+      - prompt
+      - projectId
+      title: PostQuery
+    UpdateProject:
+      properties:
+        name:
+          type: string
+          title: Name
+        path:
+          type: string
+          title: Path
+        provider:
+          type: string
+          title: Provider
+        provider_model:
+          type: string
+          title: Provider Model
+      type: object
+      required:
+      - name
+      - path
+      - provider
+      - provider_model
+      title: UpdateProject
+    UpdateProjectFile:
+      properties:
+        added_to_context:
+          type: boolean
+          title: Added To Context
+      type: object
+      required:
+      - added_to_context
+      title: UpdateProjectFile
+    UpdateSettings:
+      properties:
+        anthropic_api_key:
+          type: string
+          title: Anthropic Api Key
+        cohere_api_key:
+          type: string
+          title: Cohere Api Key
+        google_ai_studio_api_key:
+          type: string
+          title: Google Ai Studio Api Key
+        groq_api_key:
+          type: string
+          title: Groq Api Key
+        voyage_ai_api_key:
+          type: string
+          title: Voyage Ai Api Key
+        open_ai_api_key:
+          type: string
+          title: Open Ai Api Key
+        perplexity_ai_api_key:
+          type: string
+          title: Perplexity Ai Api Key
+        gh_pat_token:
+          type: string
+          title: Gh Pat Token
+      type: object
+      required:
+      - anthropic_api_key
+      - cohere_api_key
+      - google_ai_studio_api_key
+      - groq_api_key
+      - voyage_ai_api_key
+      - open_ai_api_key
+      - perplexity_ai_api_key
+      - gh_pat_token
+      title: UpdateSettings
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError
+  securitySchemes:
+    HTTPBearer:
+      type: http
+      scheme: bearer
