@@ -33,6 +33,7 @@ func Chat() {
 	defer cancel()
 
 	logger.Info("Starting Chat function")
+	// api.Login()
 
 	// Initialize the VertexAI service
 	// aiService = NewVertexAIService("ada-test-1234", "us-central1", "gemini-1.5-flash-001")

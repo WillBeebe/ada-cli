@@ -22,7 +22,14 @@ var listProjectsCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		selectedProject, err := internal.SelectProject(projects)
+		// Load the current config
+		config := ada.LoadConfig()
+		if config == nil {
+			fmt.Println("Error loading config")
+			os.Exit(1)
+		}
+
+		selectedProject, err := internal.SelectProject(projects, config.CurrentProjectID)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error selecting project: %v\n", err)
 			os.Exit(1)
@@ -30,13 +37,6 @@ var listProjectsCmd = &cobra.Command{
 
 		if selectedProject != nil {
 			fmt.Printf("You selected project: %s (ID: %d)\n", selectedProject.Name, selectedProject.ID)
-
-			// Load the current config
-			config := ada.LoadConfig()
-			if config == nil {
-				fmt.Println("Error loading config")
-				os.Exit(1)
-			}
 
 			// Update the config with the selected project
 			config.CurrentProject = selectedProject.Name

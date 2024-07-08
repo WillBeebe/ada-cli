@@ -7,60 +7,100 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+var (
+	userStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#000000")).
+			Background(lipgloss.Color("#E0E0E0")).
+			Padding(0, 1).
+			MarginTop(1).
+			Align(lipgloss.Right)
+
+	aiStyle = lipgloss.NewStyle().
+		Foreground(lipgloss.Color("#FFFFFF")).
+		Background(lipgloss.Color("#4A4A4A")).
+		Padding(0, 1).
+		MarginTop(1).
+		Align(lipgloss.Left)
+
+	timestampStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#888888")).
+			MarginLeft(1).
+			MarginRight(1).
+			Italic(true)
+
+	inputPromptStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.Color("#FF69B4")).
+				Bold(true)
+
+	inputStyle = lipgloss.NewStyle().
+			BorderStyle(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("#FF69B4")).
+			Padding(0, 1)
+
+	waitingStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#FFA500")).
+			Italic(true)
+)
+
 func (m model) View() string {
-	if m.inputMode {
-		return m.inputView()
-	}
-	return m.chatView()
+	return fmt.Sprintf(
+		"%s\n\n%s",
+		m.viewport.View(),
+		m.inputView(),
+	)
 }
 
 func (m model) inputView() string {
-	s := strings.Builder{}
-	s.WriteString(m.viewport.View())
-	s.WriteString("\n\n")
-	s.WriteString(promptStyle.Render("Enter multiple lines of text (press Esc to send, write 'bye' then press Esc to exit):"))
-	s.WriteString("\n")
-	for i, line := range m.lines {
-		if i == m.cursorY {
-			beforeCursor := m.highlightSyntax(line[:m.cursorX])
-			afterCursor := m.highlightSyntax(line[m.cursorX:])
-			cursorLine := lipgloss.JoinHorizontal(lipgloss.Left,
-				beforeCursor,
-				cursorStyle.Render(cursorText),
-				afterCursor,
-			)
-			s.WriteString(cursorLine)
-		} else {
-			s.WriteString(m.highlightSyntax(line))
-		}
-		s.WriteString("\n")
-	}
-	return s.String()
-}
-
-func (m model) chatView() string {
-	s := strings.Builder{}
-	s.WriteString(m.viewport.View())
-	s.WriteString("\n\n")
 	if m.isWaiting {
-		s.WriteString(m.spinner.View() + " Waiting for response...")
-	} else {
-		s.WriteString("Press Enter to start typing")
+		return waitingStyle.Render("AI is thinking...")
 	}
-	return s.String()
+
+	cursor := " "
+	if m.cursorY == len(m.lines)-1 && m.cursorX == len(m.lines[m.cursorY]) {
+		cursor = "█"
+	}
+
+	input := strings.Join(m.lines, "\n")
+	if input == "" {
+		input = "Type your message here..."
+	}
+
+	return fmt.Sprintf(
+		"%s\n%s",
+		inputPromptStyle.Render("Enter your message:"),
+		inputStyle.Render(input+cursor),
+	)
 }
 
 func (m model) formatMessages() string {
 	var sb strings.Builder
+
 	for _, msg := range m.messages {
-		content := highlightMarkdown(msg.content)
+		var style lipgloss.Style
+		var prefix string
+
 		if msg.isUser {
-			sb.WriteString(userMsgStyle.Render("User: " + content))
+			style = userStyle
+			prefix = "You"
 		} else {
-			sb.WriteString(aiMsgStyle.Render("AI: " + content))
+			style = aiStyle
+			prefix = "AI"
+		}
+
+		content := fmt.Sprintf("%s: %s", prefix, msg.content)
+		wrappedContent := lipgloss.NewStyle().Width(m.viewport.Width - 4).Render(content)
+		styledContent := style.Render(wrappedContent)
+
+		timestamp := timestampStyle.Render(msg.time.Format("15:04"))
+
+		if msg.isUser {
+			sb.WriteString(lipgloss.JoinHorizontal(lipgloss.Bottom, timestamp, styledContent))
+		} else {
+			sb.WriteString(lipgloss.JoinHorizontal(lipgloss.Bottom, styledContent, timestamp))
 		}
 		sb.WriteString("\n\n")
 	}
+
 	return sb.String()
 }
 
@@ -143,18 +183,4 @@ func highlightLinks(line string) string {
 		line = line[closeParen+1:]
 	}
 	return strings.Join(result, "")
-}
-
-func (m model) highlightSyntax(line string) string {
-	words := strings.Fields(line)
-	for i, word := range words {
-		if strings.HasPrefix(word, "/") {
-			words[i] = commandStyle.Render(word)
-		} else if strings.HasPrefix(word, "*") && strings.HasSuffix(word, "*") {
-			words[i] = boldStyle.Render(word)
-		} else if strings.HasPrefix(word, "_") && strings.HasSuffix(word, "_") {
-			words[i] = italicStyle.Render(word)
-		}
-	}
-	return textStyle.Render(strings.Join(words, " "))
 }

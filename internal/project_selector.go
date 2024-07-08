@@ -2,6 +2,7 @@ package internal
 
 import (
 	"fmt"
+	"io"
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
@@ -9,11 +10,34 @@ import (
 	"github.com/container-labs/ada/internal/api"
 )
 
-var docStyle = lipgloss.NewStyle().Margin(1, 2)
+var (
+	docStyle = lipgloss.NewStyle().Margin(1, 2)
+
+	currentProjectStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.Color("#FFFFFF")).
+				Background(lipgloss.Color("#1E90FF")).
+				Bold(true)
+
+	normalItemStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#000000"))
+
+	selectedItemStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.Color("#FFFFFF")).
+				Background(lipgloss.Color("#FF69B4")).
+				Bold(true)
+
+	normalDescStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.Color("#666666"))
+
+	selectedDescStyle = lipgloss.NewStyle().
+				Foreground(lipgloss.Color("#FFFFFF")).
+				Background(lipgloss.Color("#FF69B4"))
+)
 
 type item struct {
-	id   int
-	name string
+	id        int
+	name      string
+	isCurrent bool
 }
 
 func (i item) Title() string       { return i.name }
@@ -26,14 +50,52 @@ type model struct {
 	quitting bool
 }
 
-func initialModel(projects []api.Project) model {
-	items := make([]list.Item, len(projects))
-	for i, p := range projects {
-		items[i] = item{id: p.ID, name: p.Name}
+// Custom delegate that embeds the default delegate
+type customDelegate struct {
+	list.DefaultDelegate
+}
+
+// Override the Render method
+func (d customDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
+	i, ok := listItem.(item)
+	if !ok {
+		return
 	}
 
-	l := list.New(items, list.NewDefaultDelegate(), 0, 0)
+	var title, desc string
+
+	if i.isCurrent {
+		title = currentProjectStyle.Render(i.Title() + " (current)")
+	} else if index == m.Index() {
+		title = selectedItemStyle.Render(i.Title())
+	} else {
+		title = normalItemStyle.Render(i.Title())
+	}
+
+	if index == m.Index() {
+		desc = selectedDescStyle.Render(i.Description())
+	} else {
+		desc = normalDescStyle.Render(i.Description())
+	}
+
+	fmt.Fprintf(w, "%s\n%s", title, desc)
+}
+
+func initialModel(projects []api.Project, currentProjectID int) model {
+	items := make([]list.Item, len(projects))
+	for i, p := range projects {
+		items[i] = item{id: p.ID, name: p.Name, isCurrent: p.ID == currentProjectID}
+	}
+
+	delegate := customDelegate{list.NewDefaultDelegate()}
+
+	l := list.New(items, delegate, 0, 0)
 	l.Title = "Select a project"
+	l.SetShowStatusBar(false)
+	l.SetFilteringEnabled(false)
+	l.Styles.Title = l.Styles.Title.
+		Foreground(lipgloss.Color("#FF69B4")).
+		Bold(true)
 
 	return model{
 		list: l,
@@ -78,8 +140,8 @@ func (m model) View() string {
 	return docStyle.Render(m.list.View())
 }
 
-func SelectProject(projects []api.Project) (*api.Project, error) {
-	p := tea.NewProgram(initialModel(projects), tea.WithAltScreen())
+func SelectProject(projects []api.Project, currentProjectID int) (*api.Project, error) {
+	p := tea.NewProgram(initialModel(projects, currentProjectID), tea.WithAltScreen())
 	m, err := p.Run()
 	if err != nil {
 		return nil, fmt.Errorf("error running program: %w", err)

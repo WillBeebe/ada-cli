@@ -2,6 +2,7 @@ package chat
 
 import (
 	"context"
+	"time"
 
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/viewport"
@@ -11,6 +12,7 @@ import (
 type message struct {
 	content string
 	isUser  bool
+	time    time.Time
 }
 
 type model struct {
