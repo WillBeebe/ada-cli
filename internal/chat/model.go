@@ -1,8 +1,11 @@
 package chat
 
 import (
+	"context"
+
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/viewport"
+	"github.com/container-labs/ada/internal/api"
 )
 
 type message struct {
@@ -23,4 +26,18 @@ type model struct {
 	currentLine int
 }
 
-// Add any model-specific methods here
+type AIService interface {
+	StartSession(ctx context.Context) error
+	SendMessage(ctx context.Context, prompt string) (string, error)
+	GetChatHistory(ctx context.Context) ([]api.ChatMessage, error)
+}
+
+// type ChatMessage struct {
+// 	ID            int    `json:"id"`
+// 	Role          string `json:"role"`
+// 	Content       string `json:"content"`
+// 	IsContextFile bool   `json:"is_context_file"`
+// 	Model         string `json:"model"`
+// 	Tokens        int    `json:"tokens"`
+// 	IsToolMessage bool   `json:"is_tool_message"`
+// }

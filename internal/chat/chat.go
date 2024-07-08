@@ -11,6 +11,7 @@ import (
 	"cloud.google.com/go/vertexai/genai"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/container-labs/ada/internal/api"
 	"github.com/container-labs/ada/internal/common"
 	"golang.org/x/oauth2/google"
 	"google.golang.org/api/option"
@@ -25,29 +26,30 @@ const (
 	apiTimeout = 30 * time.Second
 )
 
+var aiService AIService
+
 func Chat() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	logger.Info("Starting Chat function")
 
-	err := TestCredentials(ctx)
-	if err != nil {
-		logger.Error(fmt.Sprintf("Credentials test failed: %v", err))
-		fmt.Println("Please ensure your Google Cloud credentials are set up correctly:")
-		fmt.Println("1. Run 'gcloud auth application-default login' in your terminal")
-		fmt.Println("2. Verify that you're logged in to the correct account with 'gcloud auth list'")
-		fmt.Println("3. Check your current project with 'gcloud config list project'")
-		fmt.Println("4. Ensure the project ID in the code matches your active project")
-		os.Exit(1)
-	}
+	// Initialize the VertexAI service
+	// aiService = NewVertexAIService("ada-test-1234", "us-central1", "gemini-1.5-flash-001")
+	aiService, err := api.NewChatService("http://localhost:8000/")
 
-	logger.Info("Credentials test passed, starting chat session")
-
-	chatSession, err := startSession(ctx)
+	err = aiService.StartSession(ctx)
 	if err != nil {
 		logger.Error(fmt.Sprintf("Failed to start session: %v", err))
 		os.Exit(1)
+	}
+
+	// Retrieve chat history
+	history, err := aiService.GetChatHistory(ctx)
+	if err != nil {
+		logger.Error(fmt.Sprintf("Failed to get chat history: %v", err))
+		// Continue without history if there's an error
+		history = []api.ChatMessage{}
 	}
 
 	logger.Info("Chat session started successfully")
@@ -55,7 +57,7 @@ func Chat() {
 	sigs := make(chan os.Signal, 1)
 	signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
 
-	p := tea.NewProgram(initialModel())
+	p := tea.NewProgram(initialModel(history))
 
 	done := make(chan bool, 1)
 
@@ -65,7 +67,7 @@ func Chat() {
 			select {
 			case msg := <-messageChan:
 				logger.Debug(fmt.Sprintf("Received message from channel: %s", msg))
-				response, err := sendMessage(ctx, chatSession, msg)
+				response, err := aiService.SendMessage(ctx, msg)
 				if err != nil {
 					logger.Error(fmt.Sprintf("Error sending message: %v", err))
 					p.Send(errorMsg{err})

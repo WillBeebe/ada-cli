@@ -8,9 +8,10 @@ import (
 	"github.com/charmbracelet/bubbles/viewport"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/container-labs/ada/internal/api"
 )
 
-func initialModel() model {
+func initialModel(history []api.ChatMessage) model {
 	s := spinner.New()
 	s.Spinner = spinner.Dot
 	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
@@ -48,11 +49,23 @@ func initialModel() model {
 		cursorX:   0,
 		cursorY:   0,
 		viewport:  v,
-		messages:  []message{},
+		messages:  formatChatHistory(history),
 		spinner:   s,
 		isWaiting: false,
 		inputMode: true,
 	}
+}
+
+func formatChatHistory(history []api.ChatMessage) []message {
+	var formattedMessages []message
+	for _, msg := range history {
+		formattedMsg := message{
+			isUser:  msg.Role == "user",
+			content: msg.Content,
+		}
+		formattedMessages = append(formattedMessages, formattedMsg)
+	}
+	return formattedMessages
 }
 
 func (m model) Init() tea.Cmd {
@@ -60,7 +73,8 @@ func (m model) Init() tea.Cmd {
 }
 
 func BubblePrompt() (string, error) {
-	p := tea.NewProgram(initialModel())
+	var initial []api.ChatMessage
+	p := tea.NewProgram(initialModel(initial))
 	m, err := p.Run()
 	if err != nil {
 		return "", err

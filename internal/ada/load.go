@@ -26,6 +26,9 @@ func CheckExists() error {
 }
 
 func Load() *AdaFile {
+	globalConfig := LoadConfig()
+	logger.Debug(fmt.Sprintf("%+v\n", globalConfig))
+
 	yamlFile := ADA_FILE
 
 	data, err := ioutil.ReadFile(yamlFile)

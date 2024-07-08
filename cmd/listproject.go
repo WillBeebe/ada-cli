@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/container-labs/ada/internal"
+	"github.com/container-labs/ada/internal/ada"
 	"github.com/container-labs/ada/internal/api"
 	"github.com/spf13/cobra"
 )
@@ -29,7 +30,26 @@ var listProjectsCmd = &cobra.Command{
 
 		if selectedProject != nil {
 			fmt.Printf("You selected project: %s (ID: %d)\n", selectedProject.Name, selectedProject.ID)
-			// Here you can add further actions with the selected project
+
+			// Load the current config
+			config := ada.LoadConfig()
+			if config == nil {
+				fmt.Println("Error loading config")
+				os.Exit(1)
+			}
+
+			// Update the config with the selected project
+			config.CurrentProject = selectedProject.Name
+			config.CurrentProjectID = selectedProject.ID
+
+			// Save the updated config
+			err = ada.SaveConfig(config)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error saving config: %v\n", err)
+				os.Exit(1)
+			}
+
+			fmt.Println("Project ID saved to config file")
 		} else {
 			fmt.Println("No project selected")
 		}
