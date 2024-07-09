@@ -16,6 +16,7 @@ type Config struct {
 	Version          string `yaml:"version"`
 	CurrentProject   string `yaml:"current_project"`
 	CurrentProjectID int    `yaml:"current_project_id"`
+	ColorScheme      string `yaml:"color"`
 }
 
 func LoadConfig() *Config {
@@ -30,6 +31,7 @@ func LoadConfig() *Config {
 		Version:          "1.0.0",
 		CurrentProject:   "",
 		CurrentProjectID: 0,
+		ColorScheme:      "dark",
 	}
 
 	filePath := filepath.Join(homeDir, fileName)

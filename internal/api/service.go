@@ -5,42 +5,36 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 )
 
 type Service struct {
-	client  *http.Client
 	baseURL string
 }
 
 func NewService(baseURL string) *Service {
 	return &Service{
-		client:  &http.Client{},
 		baseURL: baseURL,
 	}
 }
 
 type Project struct {
-	ID   int    `json:"id"`
-	Name string `json:"name"`
-	// Add other relevant fields
+	ID            int    `json:"id"`
+	Name          string `json:"name"`
+	Path          string `json:"path"`
+	Provider      string `json:"provider"`
+	ProviderModel string `json:"provider_model"`
 }
 
-// type ListProjectsResponse struct {
-// 	Projects      []Project `json:"projects"`
-// 	NextPageToken string    `json:"nextPageToken,omitempty"`
-// }
-
 func (s *Service) ListProjects(ctx context.Context, pageToken string) ([]Project, error) {
-	url := fmt.Sprintf("%s/projects?pageToken=%s", s.baseURL, pageToken)
-
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	client, err := NewClient(s.baseURL)
 	if err != nil {
-		return nil, fmt.Errorf("error creating request: %w", err)
+		return nil, fmt.Errorf("error creating client: %w", err)
 	}
 
-	resp, err := s.client.Do(req)
+	resp, err := client.ListProjectsGet(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("error making request: %w", err)
+		return nil, fmt.Errorf("error listing projects: %w", err)
 	}
 	defer resp.Body.Close()
 
@@ -49,7 +43,8 @@ func (s *Service) ListProjects(ctx context.Context, pageToken string) ([]Project
 	}
 
 	var projects []Project
-	if err := json.NewDecoder(resp.Body).Decode(&projects); err != nil {
+	err = decodeBody(resp, &projects)
+	if err != nil {
 		return nil, fmt.Errorf("error decoding response: %w", err)
 	}
 
@@ -57,16 +52,14 @@ func (s *Service) ListProjects(ctx context.Context, pageToken string) ([]Project
 }
 
 func (s *Service) GetProject(ctx context.Context, projectID int) (*Project, error) {
-	url := fmt.Sprintf("%s/projects/%d", s.baseURL, projectID)
-
-	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
+	client, err := NewClient(s.baseURL)
 	if err != nil {
-		return nil, fmt.Errorf("error creating request: %w", err)
+		return nil, fmt.Errorf("error creating client: %w", err)
 	}
 
-	resp, err := s.client.Do(req)
+	resp, err := client.ReadProjectsProjectIdGet(ctx, strconv.Itoa(projectID))
 	if err != nil {
-		return nil, fmt.Errorf("error making request: %w", err)
+		return nil, fmt.Errorf("error getting project: %w", err)
 	}
 	defer resp.Body.Close()
 
@@ -75,11 +68,49 @@ func (s *Service) GetProject(ctx context.Context, projectID int) (*Project, erro
 	}
 
 	var project Project
-	if err := json.NewDecoder(resp.Body).Decode(&project); err != nil {
+	err = decodeBody(resp, &project)
+	if err != nil {
 		return nil, fmt.Errorf("error decoding response: %w", err)
 	}
 
 	return &project, nil
 }
 
-// You can add more methods here as needed, such as CreateProject, UpdateProject, DeleteProject, etc.
+func (s *Service) CreateProject(ctx context.Context, name, path, provider, providerModel string) (*Project, error) {
+	createProjectBody := CreateProject{
+		Name:          name,
+		Path:          path,
+		Provider:      provider,
+		ProviderModel: providerModel,
+	}
+
+	client, err := NewClient(s.baseURL)
+	if err != nil {
+		return nil, fmt.Errorf("error creating client: %w", err)
+	}
+
+	resp, err := client.CreateProjectsPost(ctx, createProjectBody)
+	if err != nil {
+		return nil, fmt.Errorf("error creating project: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+	}
+
+	var project Project
+	err = decodeBody(resp, &project)
+	if err != nil {
+		return nil, fmt.Errorf("error decoding response: %w", err)
+	}
+
+	return &project, nil
+}
+
+func decodeBody(resp *http.Response, v interface{}) error {
+	decoder := json.NewDecoder(resp.Body)
+	return decoder.Decode(v)
+}
+
+// You can add more methods here as needed, such as UpdateProject, DeleteProject, etc.
