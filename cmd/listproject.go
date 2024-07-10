@@ -16,7 +16,11 @@ var listProjectsCmd = &cobra.Command{
 	Use:   "projects",
 	Short: "List all projects and select one",
 	Run: func(cmd *cobra.Command, args []string) {
-		service := api.NewService(os.Getenv("ADA_API_URL"))
+		service, err := api.NewService(os.Getenv("ADA_API_URL"), os.Getenv("ADA_TOKEN"))
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error listing projects: %v\n", err)
+			os.Exit(1)
+		}
 
 		projects, err := service.ListProjects(cmd.Context(), "")
 		if err != nil {
@@ -68,7 +72,11 @@ var projectsCreateCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		service := api.NewService(os.Getenv("ADA_API_URL"))
+		service, err := api.NewService(os.Getenv("ADA_API_URL"), os.Getenv("ADA_TOKEN"))
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error listing projects: %v\n", err)
+			os.Exit(1)
+		}
 
 		createdProject, err := service.CreateProject(cmd.Context(), newProject.Name, newProject.Path, newProject.Provider, newProject.ProviderModel)
 		if err != nil {

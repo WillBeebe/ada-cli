@@ -26,8 +26,6 @@ var (
 
 func init() {
 	oauth2Config = &oauth2.Config{
-		// ClientID: "368747471698-m570pnvdpes6cncrupq9r2vvjp20951m.apps.googleusercontent.com", # ada ui
-		// ClientID:    "368747471698-lqjcpd8oqjuvlq203pk59gov5c4lpaud.apps.googleusercontent.com",
 		ClientID:    "368747471698-eq1l90u2baqmu6gtm3fkg1k860kf5v64.apps.googleusercontent.com",
 		RedirectURL: fmt.Sprintf("http://localhost:%d/callback", authServerPort),
 		Scopes:      []string{"openid", "profile", "email"},

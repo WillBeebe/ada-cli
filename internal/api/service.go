@@ -5,17 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
 )
 
 type Service struct {
-	baseURL string
-}
-
-func NewService(baseURL string) *Service {
-	return &Service{
-		baseURL: baseURL,
-	}
+	baseURL  string
+	adaToken string
+	client   *Client
 }
 
 type Project struct {
@@ -26,13 +21,28 @@ type Project struct {
 	ProviderModel string `json:"provider_model"`
 }
 
-func (s *Service) ListProjects(ctx context.Context, pageToken string) ([]Project, error) {
-	client, err := NewClient(s.baseURL)
+func NewService(baseURL, adaToken string) (*Service, error) {
+	client, err := NewClient(baseURL)
 	if err != nil {
 		return nil, fmt.Errorf("error creating client: %w", err)
 	}
 
-	resp, err := client.ListProjectsGet(ctx)
+	return &Service{
+		baseURL:  baseURL,
+		adaToken: adaToken,
+		client:   client,
+	}, nil
+}
+
+func (s *Service) addCustomHeader(ctx context.Context, req *http.Request) error {
+	req.Header.Set("x-ada-token", s.adaToken)
+	return nil
+}
+
+func (s *Service) ListProjects(ctx context.Context, pageToken string) ([]Project, error) {
+	s.client.RequestEditors = []RequestEditorFn{s.addCustomHeader}
+
+	resp, err := s.client.ListProjectsGet(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("error listing projects: %w", err)
 	}
@@ -52,12 +62,9 @@ func (s *Service) ListProjects(ctx context.Context, pageToken string) ([]Project
 }
 
 func (s *Service) GetProject(ctx context.Context, projectID int) (*Project, error) {
-	client, err := NewClient(s.baseURL)
-	if err != nil {
-		return nil, fmt.Errorf("error creating client: %w", err)
-	}
+	s.client.RequestEditors = []RequestEditorFn{s.addCustomHeader}
 
-	resp, err := client.ReadProjectsProjectIdGet(ctx, strconv.Itoa(projectID))
+	resp, err := s.client.ReadProjectsProjectIdGet(ctx, projectID)
 	if err != nil {
 		return nil, fmt.Errorf("error getting project: %w", err)
 	}
@@ -84,12 +91,9 @@ func (s *Service) CreateProject(ctx context.Context, name, path, provider, provi
 		ProviderModel: providerModel,
 	}
 
-	client, err := NewClient(s.baseURL)
-	if err != nil {
-		return nil, fmt.Errorf("error creating client: %w", err)
-	}
+	s.client.RequestEditors = []RequestEditorFn{s.addCustomHeader}
 
-	resp, err := client.CreateProjectsPost(ctx, createProjectBody)
+	resp, err := s.client.CreateProjectsPost(ctx, createProjectBody)
 	if err != nil {
 		return nil, fmt.Errorf("error creating project: %w", err)
 	}
