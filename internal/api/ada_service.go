@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"strings"
 
 	"github.com/container-labs/ada/internal/ada"
@@ -14,8 +15,9 @@ import (
 var logger = common.Logger()
 
 type ChatService struct {
-	client *ClientWithResponses
-	config *ada.Config
+	client   *ClientWithResponses
+	config   *ada.Config
+	adaToken string
 }
 
 type ResponseBody struct {
@@ -36,7 +38,7 @@ type ChatMessage struct {
 	IsToolMessage bool   `json:"is_tool_message"`
 }
 
-func NewChatService(baseURL string) (*ChatService, error) {
+func NewChatService(baseURL string, adaToken string) (*ChatService, error) {
 	client, err := NewClientWithResponses(baseURL)
 	if err != nil {
 		return nil, fmt.Errorf("error creating client: %v", err)
@@ -48,12 +50,18 @@ func NewChatService(baseURL string) (*ChatService, error) {
 	}
 
 	return &ChatService{
-		client: client,
-		config: config,
+		client:   client,
+		config:   config,
+		adaToken: adaToken,
 	}, nil
 }
 func (s *ChatService) StartSession(ctx context.Context) error {
 	// No session initialization needed for this API
+	return nil
+}
+
+func (s *ChatService) addCustomHeader(ctx context.Context, req *http.Request) error {
+	req.Header.Set("x-ada-token", s.adaToken)
 	return nil
 }
 
@@ -63,7 +71,7 @@ func (s *ChatService) SendMessage(ctx context.Context, prompt string) (string, e
 		ProjectId: fmt.Sprintf("%d", s.config.CurrentProjectID),
 	}
 
-	resp, err := s.client.PromptPromptPostWithBody(ctx, "application/json", createJSONReader(body))
+	resp, err := s.client.PromptPromptPostWithBody(ctx, "application/json", createJSONReader(body), s.addCustomHeader)
 	if err != nil {
 		return "", fmt.Errorf("error sending prompt: %v", err)
 	}

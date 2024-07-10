@@ -37,7 +37,7 @@ func Chat() {
 
 	// Initialize the VertexAI service
 	// aiService = NewVertexAIService("ada-test-1234", "us-central1", "gemini-1.5-flash-001")
-	aiService, err := api.NewChatService("http://localhost:8000/")
+	aiService, err := api.NewChatService("https://ada-api.containerlabs.io", os.Getenv("ADA_TOKEN"))
 
 	err = aiService.StartSession(ctx)
 	if err != nil {
