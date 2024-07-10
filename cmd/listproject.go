@@ -16,7 +16,7 @@ var listProjectsCmd = &cobra.Command{
 	Use:   "projects",
 	Short: "List all projects and select one",
 	Run: func(cmd *cobra.Command, args []string) {
-		service := api.NewService("http://localhost:8000")
+		service := api.NewService(os.Getenv("ADA_API_URL"))
 
 		projects, err := service.ListProjects(cmd.Context(), "")
 		if err != nil {
@@ -68,7 +68,7 @@ var projectsCreateCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		service := api.NewService("http://localhost:8000")
+		service := api.NewService(os.Getenv("ADA_API_URL"))
 
 		createdProject, err := service.CreateProject(cmd.Context(), newProject.Name, newProject.Path, newProject.Provider, newProject.ProviderModel)
 		if err != nil {
